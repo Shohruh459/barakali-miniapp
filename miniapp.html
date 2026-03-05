@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Barakali Taom</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════ */
+:root {
+  --gold:        #C8963E;
+  --gold-light:  #E4B86A;
+  --gold-pale:   #FDF3E3;
+  --gold-dim:    rgba(200,150,62,0.12);
+  --bg:          #FAFAF8;
+  --surface:     #FFFFFF;
+  --surface2:    #F5F3EE;
+  --text:        #1A1610;
+  --text2:       #6B5E4A;
+  --text3:       #A8997E;
+  --border:      rgba(200,150,62,0.18);
+  --border-soft: rgba(0,0,0,0.07);
+  --green:       #3D9B6A;
+  --green-bg:    #EDF7F2;
+  --red:         #D64040;
+  --shadow-sm:   0 2px 12px rgba(0,0,0,0.06);
+  --shadow-md:   0 8px 32px rgba(0,0,0,0.10);
+  --shadow-gold: 0 8px 24px rgba(200,150,62,0.25);
+  --r:           14px;
+  --r-sm:        8px;
+}
+
+/* ── DARK MODE (Telegram tg-theme bilan) ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:          #111008;
+    --surface:     #1C1A13;
+    --surface2:    #231F16;
+    --text:        #F2EBD9;
+    --text2:       #BBA882;
+    --text3:       #7A6B52;
+    --border:      rgba(200,150,62,0.22);
+    --border-soft: rgba(255,255,255,0.07);
+    --gold-pale:   rgba(200,150,62,0.12);
+    --green-bg:    rgba(61,155,106,0.15);
+  }
+}
+
+/* ══════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+button { border:none; cursor:pointer; font-family:inherit; }
+img { display:block; }
+
+/* ══════════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════════ */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── HEADER ── */
+.header {
+  flex-shrink: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 14px 18px 12px;
+  position: relative;
+  z-index: 10;
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.brand-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--gold), #8B6020);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: var(--shadow-gold);
+}
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+.brand-sub {
+  font-size: 0.68rem; color: var(--text3);
+  font-weight: 500; letter-spacing: 0.04em;
+}
+.header-status {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--green-bg);
+  padding: 5px 11px; border-radius: 100px;
+  font-size: 0.72rem; font-weight: 600; color: var(--green);
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.5; transform:scale(1.4); }
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex; gap: 6px;
+}
+.tab {
+  flex: 1; padding: 8px 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--text3);
+  transition: all 0.2s;
+  text-align: center;
+}
+.tab.active {
+  background: var(--gold-pale);
+  border-color: var(--border);
+  color: var(--gold);
+}
+
+/* ══════════════════════════════════════════
+   PAGES
+══════════════════════════════════════════ */
+.pages {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.page {
+  position: absolute; inset: 0;
+  overflow-y: auto;
+  padding: 16px;
+  transition: opacity 0.25s, transform 0.25s;
+  opacity: 0; transform: translateX(20px);
+  pointer-events: none;
+  -webkit-overflow-scrolling: touch;
+}
+.page.active {
+  opacity: 1; transform: translateX(0);
+  pointer-events: all;
+}
+
+/* ══════════════════════════════════════════
+   MENU PAGE
+══════════════════════════════════════════ */
+.category-label {
+  font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.category-label::after {
+  content:''; flex:1; height:1px; background: var(--border-soft);
+}
+
+.food-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+.food-card {
+  background: var(--surface);
+  border-radius: var(--r);
+  border: 1px solid var(--border-soft);
+  padding: 14px;
+  display: flex; align-items: center; gap: 13px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s, box-shadow 0.15s;
+  position: relative; overflow: hidden;
+}
+.food-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width:3px; background: var(--gold); opacity:0;
+  transition: opacity 0.2s;
+}
+.food-card.in-cart::before { opacity:1; }
+.food-card:active { transform: scale(0.985); }
+
+.food-img {
+  width: 64px; height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+}
+.food-info { flex: 1; min-width: 0; }
+.food-name {
+  font-weight: 700; font-size: 0.93rem;
+  color: var(--text); margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.food-desc {
+  font-size: 0.75rem; color: var(--text3);
+  margin-bottom: 6px; line-height: 1.4;
+}
+.food-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 700;
+  color: var(--gold);
+}
+
+.qty-ctrl {
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.qty-btn {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; font-weight: 700;
+  transition: all 0.15s;
+}
+.qty-btn.minus {
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--border-soft);
+}
+.qty-btn.plus {
+  background: var(--gold);
+  color: white;
+  box-shadow: 0 3px 10px rgba(200,150,62,0.4);
+}
+.qty-btn:active { transform: scale(0.88); }
+.qty-num {
+  font-size: 1rem; font-weight: 700;
+  min-width: 20px; text-align: center;
+  color: var(--text);
+}
+
+/* ══════════════════════════════════════════
+   CART PAGE
+══════════════════════════════════════════ */
+.empty-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 300px; gap: 12px;
+  color: var(--text3); text-align: center;
+}
+.empty-icon { font-size: 3.5rem; opacity: 0.4; }
+.empty-state h3 { font-size: 1rem; font-weight: 700; color: var(--text2); }
+.empty-state p { font-size: 0.83rem; max-width: 200px; line-height: 1.5; }
+
+.cart-item {
+  background: var(--surface);
+  border-radius: var(--r);
+  border: 1px solid var(--border-soft);
+  padding: 13px 14px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 9px;
+  animation: slideIn 0.25s ease both;
+}
+@keyframes slideIn {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.cart-item-icon {
+  width: 44px; height: 44px;
+  border-radius: 8px;
+  background: var(--gold-pale);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; flex-shrink: 0;
+}
+.cart-item-info { flex:1; min-width:0; }
+.cart-item-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+.cart-item-price { font-size: 0.8rem; color: var(--text3); }
+.cart-item-total {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem; font-weight: 700;
+  color: var(--gold); white-space: nowrap;
+}
+.cart-remove {
+  background: transparent; color: var(--text3);
+  font-size: 1rem; padding: 4px;
+  transition: color 0.15s;
+}
+.cart-remove:hover { color: var(--red); }
+
+/* Summary */
+.cart-summary {
+  background: var(--surface);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  padding: 16px;
+  margin-top: 4px; margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.summary-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.87rem; color: var(--text2);
+  padding: 4px 0;
+}
+.summary-row.total {
+  border-top: 1px solid var(--border-soft);
+  margin-top: 8px; padding-top: 12px;
+  font-size: 1rem; font-weight: 700; color: var(--text);
+}
+.summary-row.total span:last-child {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; color: var(--gold);
+}
+
+/* ══════════════════════════════════════════
+   ORDER FORM
+══════════════════════════════════════════ */
+.form-section { margin-bottom: 18px; }
+.form-title {
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.form-title::after { content:''; flex:1; height:1px; background: var(--border-soft); }
+
+.input-wrap { position: relative; margin-bottom: 10px; }
+.input-icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  font-size: 1rem; color: var(--text3); pointer-events: none;
+}
+.input-field {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-sm);
+  padding: 12px 12px 12px 40px;
+  font-size: 0.9rem; font-family: inherit;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+.input-field::placeholder { color: var(--text3); }
+.input-field:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(200,150,62,0.12);
+}
+
+.payment-options {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+}
+.payment-opt {
+  background: var(--surface);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--r-sm);
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.payment-opt.selected {
+  background: var(--gold-pale);
+  border-color: var(--gold);
+}
+.payment-opt-icon { font-size: 1.3rem; margin-bottom: 4px; }
+.payment-opt-label { font-size: 0.72rem; font-weight: 600; color: var(--text2); }
+
+/* ══════════════════════════════════════════
+   BOTTOM BAR (Savat tugmasi)
+══════════════════════════════════════════ */
+.bottom-bar {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-top: 1px solid var(--border-soft);
+}
+.cart-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--gold), #A07020);
+  color: white;
+  padding: 15px 20px;
+  border-radius: var(--r);
+  font-size: 0.95rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow-gold);
+  transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.cart-btn::after {
+  content:'';
+  position: absolute; inset:0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+}
+.cart-btn:active { transform: scale(0.98); box-shadow: none; }
+.cart-btn:disabled {
+  background: var(--surface2); color: var(--text3);
+  box-shadow: none; cursor: not-allowed;
+}
+.cart-btn-left { display:flex; align-items:center; gap:10px; }
+.cart-badge {
+  background: rgba(255,255,255,0.25);
+  border-radius: 6px; padding: 2px 8px;
+  font-size: 0.82rem; font-weight: 700;
+}
+.cart-btn-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem; font-weight: 700;
+}
+
+/* ══════════════════════════════════════════
+   SUCCESS SCREEN
+══════════════════════════════════════════ */
+#success-screen {
+  position: fixed; inset:0;
+  background: var(--surface);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 1000; padding: 32px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+#success-screen.show { opacity:1; pointer-events:all; }
+.success-anim {
+  width: 90px; height: 90px;
+  background: var(--green-bg);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.8rem; margin-bottom: 24px;
+  animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes popIn {
+  from { transform:scale(0); opacity:0; }
+  to   { transform:scale(1); opacity:1; }
+}
+#success-screen h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 700;
+  text-align: center; margin-bottom: 10px;
+}
+#success-screen p {
+  font-size: 0.9rem; color: var(--text2);
+  text-align: center; line-height: 1.6; max-width: 280px;
+}
+.success-order-id {
+  margin-top: 20px;
+  background: var(--gold-pale);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 24px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; font-weight: 700;
+  color: var(--gold);
+}
+
+/* ══════════════════════════════════════════
+   LOADING
+══════════════════════════════════════════ */
+.spinner {
+  width: 20px; height: 20px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* Scrollbar hide */
+.page::-webkit-scrollbar { display:none; }
+.page { -ms-overflow-style:none; scrollbar-width:none; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        <div class="brand-icon">🍽</div>
+        <div>
+          <div class="brand-name">Barakali Taom</div>
+          <div class="brand-sub">08:00 – 22:00</div>
+        </div>
+      </div>
+      <div class="header-status" id="status-badge">
+        <span class="status-dot"></span>
+        <span id="status-text">Ochiq</span>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('menu', this)">🍽 Menyu</button>
+      <button class="tab" onclick="switchTab('cart', this)">🛒 Savat</button>
+      <button class="tab" onclick="switchTab('order', this)">📋 Buyurtma</button>
+    </div>
+  </div>
+
+  <!-- PAGES -->
+  <div class="pages">
+
+    <!-- MENU PAGE -->
+    <div class="page active" id="page-menu">
+      <div class="category-label">Asosiy taomlar</div>
+      <div class="food-list" id="food-list"></div>
+      <div style="height:8px"></div>
+    </div>
+
+    <!-- CART PAGE -->
+    <div class="page" id="page-cart">
+      <div id="cart-content"></div>
+    </div>
+
+    <!-- ORDER PAGE -->
+    <div class="page" id="page-order">
+      <div class="form-section">
+        <div class="form-title">Yetkazib berish</div>
+        <div class="input-wrap">
+          <span class="input-icon">📍</span>
+          <input class="input-field" id="inp-address" type="text"
+                 placeholder="Manzilingiz (ko'cha, uy raqami)" autocomplete="off">
+        </div>
+        <div class="input-wrap">
+          <span class="input-icon">📞</span>
+          <input class="input-field" id="inp-phone" type="tel"
+                 placeholder="+998 90 123 45 67" autocomplete="tel">
+        </div>
+        <div class="input-wrap">
+          <span class="input-icon">💬</span>
+          <input class="input-field" id="inp-note" type="text"
+                 placeholder="Izoh (ixtiyoriy)" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-title">To'lov turi</div>
+        <div class="payment-options">
+          <div class="payment-opt selected" onclick="selectPayment(this,'💵 Naqd')">
+            <div class="payment-opt-icon">💵</div>
+            <div class="payment-opt-label">Naqd</div>
+          </div>
+          <div class="payment-opt" onclick="selectPayment(this,'💳 Karta')">
+            <div class="payment-opt-icon">💳</div>
+            <div class="payment-opt-label">Karta</div>
+          </div>
+          <div class="payment-opt" onclick="selectPayment(this,'🔄 Aralash')">
+            <div class="payment-opt-icon">🔄</div>
+            <div class="payment-opt-label">Aralash</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order summary mini -->
+      <div class="cart-summary" id="order-summary" style="display:none">
+        <div id="order-summary-items"></div>
+        <div class="summary-row">
+          <span>Yetkazib berish</span>
+          <span>10 000 so'm</span>
+        </div>
+        <div class="summary-row total">
+          <span>Jami</span>
+          <span id="order-total-val">0</span>
+        </div>
+      </div>
+
+      <div style="height: 8px"></div>
+    </div>
+
+  </div><!-- /pages -->
+
+  <!-- BOTTOM BAR -->
+  <div class="bottom-bar">
+    <button class="cart-btn" id="main-btn" onclick="handleMainBtn()" disabled>
+      <div class="cart-btn-left">
+        <span id="btn-icon">🛒</span>
+        <span id="btn-label">Savat bo'sh</span>
+        <span class="cart-badge" id="btn-badge" style="display:none">0</span>
+      </div>
+      <span class="cart-btn-price" id="btn-price"></span>
+      <div class="spinner" id="btn-spinner"></div>
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<!-- SUCCESS SCREEN -->
+<div id="success-screen">
+  <div class="success-anim">✅</div>
+  <h2>Buyurtma qabul qilindi!</h2>
+  <p>Tez orada siz bilan bog'lanamiz. Yetkazib berish vaqti 30–45 daqiqa.</p>
+  <div class="success-order-id" id="success-order-id">#0001</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  TELEGRAM WEB APP INIT
+// ══════════════════════════════════════════
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  // Telegram ranglariga moslashtirish
+  document.documentElement.style.setProperty('--bg', tg.backgroundColor || '');
+}
+
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+const DELIVERY_FEE = 10000;
+
+// Menyu — bu yerda bot backend dan olinadi,
+// hozir demo ma'lumotlar (bot Webhook orqali real menyu yuboradi)
+const MENU = window.__MENU__ || [
+  { id:1, nomi:"Osh",            narxi:25000, rasm:"🍚", tavsif:"Mazali o'zbek oshi" },
+  { id:2, nomi:"Lag'mon",        narxi:22000, rasm:"🍜", tavsif:"Uyda tayyorlangan lag'mon" },
+  { id:3, nomi:"Shashlik",       narxi:35000, rasm:"🍢", tavsif:"Qo'zichoq go'shtidan" },
+  { id:4, nomi:"Samsa (1 dona)", narxi:5000,  rasm:"🥟", tavsif:"Tandirda pishirilgan" },
+  { id:5, nomi:"Manti",          narxi:28000, rasm:"🥟", tavsif:"Bug'da pishirilgan" },
+  { id:6, nomi:"Choy",           narxi:3000,  rasm:"🍵", tavsif:"Ko'k yoki qora choy" },
+];
+
+// Savat
+let cart = {}; // { id: qty }
+let selectedPayment = '💵 Naqd';
+let currentTab = 'menu';
+let isSubmitting = false;
+
+// ══════════════════════════════════════════
+//  RENDER MENU
+// ══════════════════════════════════════════
+function renderMenu() {
+  const list = document.getElementById('food-list');
+  list.innerHTML = MENU.map(item => {
+    const qty = cart[item.id] || 0;
+    return `
+    <div class="food-card ${qty > 0 ? 'in-cart' : ''}" id="card-${item.id}">
+      <div class="food-img">${item.rasm}</div>
+      <div class="food-info">
+        <div class="food-name">${item.nomi}</div>
+        <div class="food-desc">${item.tavsif}</div>
+        <div class="food-price">${fmtPrice(item.narxi)}</div>
+      </div>
+      <div class="qty-ctrl">
+        <button class="qty-btn minus" onclick="changeQty(${item.id}, -1)" ${qty === 0 ? 'style="opacity:0.3"' : ''}>−</button>
+        <span class="qty-num" id="qty-${item.id}">${qty}</span>
+        <button class="qty-btn plus" onclick="changeQty(${item.id}, 1)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+//  CART OPERATIONS
+// ══════════════════════════════════════════
+function changeQty(id, delta) {
+  const prev = cart[id] || 0;
+  const next  = Math.max(0, prev + delta);
+  if (next === 0) delete cart[id]; else cart[id] = next;
+
+  // Update card UI
+  const qtyEl  = document.getElementById(`qty-${id}`);
+  const card   = document.getElementById(`card-${id}`);
+  const minusBtn = card?.querySelector('.qty-btn.minus');
+  if (qtyEl) qtyEl.textContent = next;
+  if (card)  card.classList.toggle('in-cart', next > 0);
+  if (minusBtn) minusBtn.style.opacity = next === 0 ? '0.3' : '1';
+
+  updateBottomBar();
+  if (currentTab === 'cart') renderCart();
+}
+
+function cartTotal() {
+  return MENU.reduce((s, item) => s + (cart[item.id] || 0) * item.narxi, 0);
+}
+function cartCount() {
+  return Object.values(cart).reduce((s, v) => s + v, 0);
+}
+
+// ══════════════════════════════════════════
+//  RENDER CART
+// ══════════════════════════════════════════
+function renderCart() {
+  const el = document.getElementById('cart-content');
+  const count = cartCount();
+  if (count === 0) {
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🛒</div>
+        <h3>Savat bo'sh</h3>
+        <p>Menyu bo'limidan taom tanlang</p>
+      </div>`;
+    return;
+  }
+  let html = '';
+  MENU.forEach(item => {
+    const qty = cart[item.id] || 0;
+    if (!qty) return;
+    html += `
+    <div class="cart-item">
+      <div class="cart-item-icon">${item.rasm}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.nomi}</div>
+        <div class="cart-item-price">${qty} × ${fmtPrice(item.narxi)}</div>
+      </div>
+      <div class="cart-item-total">${fmtPrice(qty * item.narxi)}</div>
+      <button class="cart-remove" onclick="changeQty(${item.id}, -${qty})">✕</button>
+    </div>`;
+  });
+  const total = cartTotal();
+  html += `
+  <div class="cart-summary">
+    <div class="summary-row"><span>Taomlar</span><span>${fmtPrice(total)}</span></div>
+    <div class="summary-row"><span>Yetkazib berish</span><span>${fmtPrice(DELIVERY_FEE)}</span></div>
+    <div class="summary-row total">
+      <span>Jami to'lov</span>
+      <span>${fmtPrice(total + DELIVERY_FEE)}</span>
+    </div>
+  </div>`;
+  el.innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+//  RENDER ORDER SUMMARY
+// ══════════════════════════════════════════
+function renderOrderSummary() {
+  const summary = document.getElementById('order-summary');
+  const itemsEl = document.getElementById('order-summary-items');
+  const totalEl = document.getElementById('order-total-val');
+  if (cartCount() === 0) { summary.style.display = 'none'; return; }
+  summary.style.display = 'block';
+  let html = '';
+  MENU.forEach(item => {
+    const qty = cart[item.id] || 0;
+    if (!qty) return;
+    html += `<div class="summary-row"><span>${item.nomi} ×${qty}</span><span>${fmtPrice(qty*item.narxi)}</span></div>`;
+  });
+  itemsEl.innerHTML = html;
+  totalEl.textContent = fmtPrice(cartTotal() + DELIVERY_FEE);
+}
+
+// ══════════════════════════════════════════
+//  BOTTOM BAR
+// ══════════════════════════════════════════
+function updateBottomBar() {
+  const btn    = document.getElementById('main-btn');
+  const icon   = document.getElementById('btn-icon');
+  const label  = document.getElementById('btn-label');
+  const badge  = document.getElementById('btn-badge');
+  const price  = document.getElementById('btn-price');
+  const count  = cartCount();
+  const total  = cartTotal();
+
+  if (currentTab === 'menu') {
+    if (count === 0) {
+      btn.disabled = true;
+      icon.textContent  = '🛒';
+      label.textContent = 'Savat bo\'sh';
+      badge.style.display = 'none';
+      price.textContent = '';
+    } else {
+      btn.disabled = false;
+      icon.textContent  = '🛒';
+      label.textContent = 'Savatni ko\'rish';
+      badge.style.display = '';
+      badge.textContent = count;
+      price.textContent = fmtPrice(total);
+    }
+  } else if (currentTab === 'cart') {
+    if (count === 0) {
+      btn.disabled = true;
+      icon.textContent  = '📋';
+      label.textContent = 'Buyurtma berish';
+      badge.style.display = 'none';
+      price.textContent = '';
+    } else {
+      btn.disabled = false;
+      icon.textContent  = '📋';
+      label.textContent = 'Buyurtma berish';
+      badge.style.display = '';
+      badge.textContent = count;
+      price.textContent = fmtPrice(total + DELIVERY_FEE);
+    }
+  } else if (currentTab === 'order') {
+    btn.disabled = count === 0;
+    icon.textContent  = '✅';
+    label.textContent = 'Tasdiqlash';
+    badge.style.display = 'none';
+    price.textContent = count > 0 ? fmtPrice(total + DELIVERY_FEE) : '';
+  }
+}
+
+function handleMainBtn() {
+  if (currentTab === 'menu') {
+    switchTab('cart', document.querySelectorAll('.tab')[1]);
+  } else if (currentTab === 'cart') {
+    switchTab('order', document.querySelectorAll('.tab')[2]);
+  } else if (currentTab === 'order') {
+    submitOrder();
+  }
+}
+
+// ══════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+
+  currentTab = name;
+  if (name === 'cart')  renderCart();
+  if (name === 'order') renderOrderSummary();
+  updateBottomBar();
+}
+
+// ══════════════════════════════════════════
+//  PAYMENT SELECT
+// ══════════════════════════════════════════
+function selectPayment(el, value) {
+  document.querySelectorAll('.payment-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPayment = value;
+}
+
+// ══════════════════════════════════════════
+//  SUBMIT ORDER
+// ══════════════════════════════════════════
+function submitOrder() {
+  if (isSubmitting) return;
+  const address = document.getElementById('inp-address').value.trim();
+  const phone   = document.getElementById('inp-phone').value.trim();
+  const note    = document.getElementById('inp-note').value.trim();
+
+  if (!address) {
+    shakeInput('inp-address'); return;
+  }
+  if (!phone || phone.length < 9) {
+    shakeInput('inp-phone'); return;
+  }
+
+  isSubmitting = true;
+  const btn     = document.getElementById('main-btn');
+  const spinner = document.getElementById('btn-spinner');
+  const label   = document.getElementById('btn-label');
+  const priceEl = document.getElementById('btn-price');
+
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Yuborilmoqda...';
+  priceEl.textContent = '';
+
+  // Buyurtma ma'lumotlari
+  const items = MENU
+    .filter(item => cart[item.id])
+    .map(item => `${item.nomi} ×${cart[item.id]}`)
+    .join(', ');
+
+  const orderData = {
+    taomlar:  items,
+    manzil:   address,
+    telefon:  phone,
+    izoh:     note,
+    tolov:    selectedPayment,
+    jami:     cartTotal() + DELIVERY_FEE,
+  };
+
+  // Telegram WebApp orqali botga yuborish
+  if (tg) {
+    tg.sendData(JSON.stringify(orderData));
+  } else {
+    // Demo rejim (brauzerda test uchun)
+    setTimeout(() => showSuccess(), 1200);
+  }
+}
+
+function showSuccess() {
+  const id = '#' + String(Math.floor(Math.random()*9000)+1000);
+  document.getElementById('success-order-id').textContent = id;
+  document.getElementById('success-screen').classList.add('show');
+  isSubmitting = false;
+  // Savatni tozalash
+  cart = {};
+  if (tg) setTimeout(() => tg.close(), 3000);
+}
+
+// ══════════════════════════════════════════
+//  SHAKE ANIMATION
+// ══════════════════════════════════════════
+function shakeInput(id) {
+  const el = document.getElementById(id);
+  el.style.borderColor = 'var(--red)';
+  el.style.animation = 'none';
+  el.offsetHeight; // reflow
+  el.style.animation = 'shake 0.4s ease';
+  el.focus();
+  setTimeout(() => { el.style.borderColor = ''; el.style.animation = ''; }, 1000);
+}
+// Shake keyframes
+const shakeStyle = document.createElement('style');
+shakeStyle.textContent = `
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-7px)}
+    40%{transform:translateX(7px)}
+    60%{transform:translateX(-5px)}
+    80%{transform:translateX(5px)}
+  }`;
+document.head.appendChild(shakeStyle);
+
+// ══════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════
+function fmtPrice(n) {
+  return n.toLocaleString('uz-UZ').replace(/,/g,' ') + ' so\'m';
+}
+
+function checkOpenStatus() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  const open = h * 60 + m >= 8 * 60;
+  const close = h * 60 + m <= 22 * 60;
+  const isOpen = open && close;
+  const badge = document.getElementById('status-badge');
+  const text  = document.getElementById('status-text');
+  text.textContent = isOpen ? 'Ochiq' : 'Yopiq';
+  badge.style.background = isOpen ? 'var(--green-bg)' : 'rgba(214,64,64,0.1)';
+  badge.style.color = isOpen ? 'var(--green)' : 'var(--red)';
+  badge.querySelector('.status-dot').style.background = isOpen ? 'var(--green)' : 'var(--red)';
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+renderMenu();
+updateBottomBar();
+checkOpenStatus();
+setInterval(checkOpenStatus, 60000);
+
+// Telegram WebApp main button (agar Telegram muhiti bo'lsa)
+if (tg && tg.onEvent) {
+  tg.onEvent('mainButtonClicked', submitOrder);
+}
+</script>
+</body>
+</html>
